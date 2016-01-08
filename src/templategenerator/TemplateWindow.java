@@ -8,12 +8,18 @@ package templategenerator;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 /**
  *
@@ -34,66 +40,47 @@ public class TemplateWindow extends javax.swing.JFrame {
     
     private void setup(){
         try {
-            Properties prop = new Properties();
-            FileReader read = new FileReader("filePath.properties");
-            prop.load(read);
-            if(SystemUtils.IS_OS_WINDOWS)
-                folder = new File(prop.getProperty("testResourceFilesWin"));
-            else if(SystemUtils.IS_OS_MAC)
-                folder = new File(prop.getProperty("testResourceFilesMac"));
-            fileList = folder.listFiles();
+            FileInputStream file = new FileInputStream(new File("C:\\test.xls"));
+            
+            //Get the workbook instance for XLS file 
+            workbook = new HSSFWorkbook(file);
+ 
+            //Get first sheet from the workbook
+            sheet = workbook.getSheetAt(0);
+//..
+//        try {
+//            Properties prop = new Properties();
+//            FileReader read = new FileReader("filePath.properties");
+//            prop.load(read);
+//            if(SystemUtils.IS_OS_WINDOWS)
+//                folder = new File(prop.getProperty("testResourceFilesWin"));
+//            else if(SystemUtils.IS_OS_MAC)
+//                folder = new File(prop.getProperty("testResourceFilesMac"));
+//            fileList = folder.listFiles();
+//        } catch (IOException ex) {
+//            System.out.println("File retrieval failed.");
+//        }
+//        
+//        files = new String[fileList.length];
+//        
+//        for(int i = 0; i < fileList.length; i++){
+//            files[i] = fileList[i].getName();
+//        }
+//        
+//        if(fileList!= null){
+//            for(File file : fileList){
+//                System.out.println(file.getName());
+//            }
+//        }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(TemplateWindow.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            System.out.println("File retrieval failed.");
-        }
-        
-        files = new String[fileList.length];
-        
-        for(int i = 0; i < fileList.length; i++){
-            files[i] = fileList[i].getName();
-        }
-        
-        if(fileList!= null){
-            for(File file : fileList){
-                System.out.println(file.getName());
-            }
+            Logger.getLogger(TemplateWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    private String[] dataFileToString(File inFile){
-        String[] data = new String[50];
-        String lastData;
-        int i = 0;
+    private void initFile(){
         
-        try {
-            FileReader readIn = new FileReader(inFile);
-            BufferedReader readFile = new BufferedReader(readIn);
-            
-            lastData = readFile.readLine();
-            
-            while(lastData != null && lastData != ""){
-                
-                if(i >= data.length){
-                    
-                    String[] temp = new String[data.length + 1];
-                    
-                    for(int j = 0; j < data.length; j++){
-                        temp[j] = data[j];
-                    }
-                    
-                    data = temp;
-                    
-                }
-                
-                
-                data[i] = lastData;
-                lastData = readFile.readLine();
-                i++;
-            }    
-            
-        } catch (IOException ex) {
-        }
-        
-        return data;
     }
     
     
@@ -234,63 +221,11 @@ public class TemplateWindow extends javax.swing.JFrame {
         String comments = jTextArea1.getText();
         double numberinput = Double.parseDouble(jTextField2.getText());
         double quantity = Double.parseDouble(jTextField3.getText());
-        File writeFile = new File(inputName + ".csv");
         String serialText;
-        try {
-            if(!"".equals(inputName)
-                    && writeFile.exists() != true 
-                    && Double.parseDouble(jTextField3.getText()) > 0
-                    && Double.parseDouble(jTextField2.getText()) > 0){ // so the user can't screw up and make a blank csv by accident
+        
                 
-                FileWriter fileWriter = new FileWriter(writeFile, true); 
-                BufferedWriter buffer = new BufferedWriter(fileWriter);
-                PrintWriter printWriter = new PrintWriter(fileWriter);
-                printWriter.print("category path = Root\\Kit Serial Numbers\n"
-                            + "Miguel Cantu,,,,Chris Rucker (Quality),,,,,,Chris Hoagland,,,,,,,,,,,,,,,,,,,,\n"                      
-                            +"Serial #,,Part #,,Capacitance,,Esr,,Leakage,,Anode Lot,,,,,Cathode Lot,,Tantalum Lot,,Header Glassing,,,,,,,,,,Comments,\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,," + comments + ",\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            +",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            + "Entered Data,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            + ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
-                            + "Serial #,,Part #,,Capacitance,,Esr,,Leakage,,Anode Lot,,,,,Cathode Lot,,Tantalum Lot,,Header Glassing,,"
-                            +"Teflon Spacer 1,,Teflon Spacer 2,,Teflon Spacer 3,,Teflon Lot #,,Comments,\n");
-                for(Double number = numberinput; number < quantity + numberinput; number++){
-                    serialText = String.valueOf(number).indexOf(".") < 0 ? String.valueOf(number) : String.valueOf(number).replaceAll("0*$", "").replaceAll("\\.$", "");
-                    printWriter.print(serialText + ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n");
-                }
-                
-                printWriter.print(",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n");
-                printWriter.print("Data Sheet,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n");
-                for(String line : dataFileToString(fileList[jComboBox1.getSelectedIndex()])){
-                    if(line != null)
-                        printWriter.print(line + "\n");
-                }
-         
-                printWriter.close();
-                jLabel2.setText("Created " + inputName + ".csv");
-                 
-         
-         
-            }
-            else if (Double.parseDouble(jTextField3.getText()) < 1)
-                jTextField3.setText("Please enter a valid quantity.");
-            else if (Double.parseDouble(jTextField2.getText()) > 0)
-                jTextField2.setText("Please enter a valid serial.");
-            else if (writeFile.exists() == true)
-                jTextField1.setText("File name taken.");
-                
-    } catch (IOException ex) {
-                jLabel2.setText("Cannot write file.");
-    }
+    
+    
         
             //dd your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -336,6 +271,8 @@ public class TemplateWindow extends javax.swing.JFrame {
     private File folder;
     private File[] fileList;
     private String[] files;
+    private HSSFWorkbook workbook;
+    private HSSFSheet sheet;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

@@ -5,21 +5,18 @@
  */
 package templategenerator;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultComboBoxModel;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
 
 /**
  *
@@ -34,44 +31,43 @@ public class TemplateWindow extends javax.swing.JFrame {
     public TemplateWindow() {
             setup();
             initComponents();
-            jComboBox1.setModel(new DefaultComboBoxModel(files));
+//            jComboBox1.setModel(new DefaultComboBoxModel(files));
             setResizable(false);
     }
     
     private void setup(){
+        
+    }
+    
+    private void writeFile(){
+        
         try {
-            FileInputStream file = new FileInputStream(new File("C:\\test.xls"));
             
-            //Get the workbook instance for XLS file 
-            workbook = new HSSFWorkbook(file);
- 
-            //Get first sheet from the workbook
-            sheet = workbook.getSheetAt(0);
-//..
-//        try {
-//            Properties prop = new Properties();
-//            FileReader read = new FileReader("filePath.properties");
-//            prop.load(read);
-//            if(SystemUtils.IS_OS_WINDOWS)
-//                folder = new File(prop.getProperty("testResourceFilesWin"));
-//            else if(SystemUtils.IS_OS_MAC)
-//                folder = new File(prop.getProperty("testResourceFilesMac"));
-//            fileList = folder.listFiles();
-//        } catch (IOException ex) {
-//            System.out.println("File retrieval failed.");
-//        }
-//        
-//        files = new String[fileList.length];
-//        
-//        for(int i = 0; i < fileList.length; i++){
-//            files[i] = fileList[i].getName();
-//        }
-//        
-//        if(fileList!= null){
-//            for(File file : fileList){
-//                System.out.println(file.getName());
-//            }
-//        }
+            File file = new File("filePath.properties");
+            FileInputStream fileInput = new FileInputStream(file);
+            
+            Properties properties = new Properties();
+            
+            properties.load(fileInput);
+            
+            if(SystemUtils.IS_OS_WINDOWS)
+                filePath = properties.getProperty("baseExcelWin");
+            else if(SystemUtils.IS_OS_MAC)
+                filePath = properties.getProperty("baseExcelMac");
+            
+            
+            try {
+                FileOutputStream out =
+                        new FileOutputStream(new File(filePath + fileName + ".xls"));
+                workbook.write(out);
+                out.close();
+                System.out.println("Excel written successfully..");
+                
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(TemplateWindow.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -79,11 +75,40 @@ public class TemplateWindow extends javax.swing.JFrame {
         }
     }
     
-    private void initFile(){
-        
+    private void getVals(){
+        quantity = Integer.parseInt(jTextField3.getText());
+        serial = Double.parseDouble(jTextField2.getText());
+        fileName = jTextField1.getText();
     }
     
-    
+    private void writeVals(){
+        //Get the workbook instance for XLS file 
+        workbook = new HSSFWorkbook();
+        sheet = workbook.createSheet("Top Level");
+        int current = 1;
+        
+        for(int i = 0; i < quantity; i++){
+            Row row = sheet.createRow(i);
+            Cell cell = row.createCell(0);
+            cell.setCellValue(serial++);
+            cell = row.createCell(1);
+            cell.setCellValue(i + 1); //comment
+            cell = row.createCell(3);
+            cell.setCellFormula(anode1Code + (i + 1) + codeSuffix);
+            cell = row.createCell(12);
+            cell.setCellFormula(anode2Code + (i + 1) + codeSuffix);
+            cell = row.createCell(21);
+            cell.setCellFormula(anode3Code + (i + 1) + codeSuffix);
+            cell = row.createCell(30);
+            cell.setCellFormula(anode4Code + (i + 1) + codeSuffix);
+            cell = row.createCell(39);
+            cell.setCellFormula(anode5Code + (i + 1) + codeSuffix);
+            cell = row.createCell(48);
+            cell.setCellFormula(cathodeCode + (i + 1) + codeSuffix);
+            cell = row.createCell(79);
+            cell.setCellFormula(glassingCode + (i + 1) + codeSuffix);
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -217,17 +242,10 @@ public class TemplateWindow extends javax.swing.JFrame {
 
     @SuppressWarnings("empty-statement")
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String inputName = jTextField1.getText();
-        String comments = jTextArea1.getText();
-        double numberinput = Double.parseDouble(jTextField2.getText());
-        double quantity = Double.parseDouble(jTextField3.getText());
-        String serialText;
+        getVals();
+        writeVals();
+        writeFile();
         
-                
-    
-    
-        
-            //dd your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
@@ -268,11 +286,15 @@ public class TemplateWindow extends javax.swing.JFrame {
     private final String glassingCode = "HYPERLINK(\"Z:\\Tom Evans\\Database\\\"&CA";
     private final String codeSuffix = "&\".xlsx\")";
     
-    private File folder;
-    private File[] fileList;
-    private String[] files;
+    private int quantity;
+    private double serial;
     private HSSFWorkbook workbook;
     private HSSFSheet sheet;
+    private String fileName;
+    private String comments;
+    private String filePath;
+//    private HSSFWorkbook dataWorkbook;
+//    private HSSFSheet dataSheet;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

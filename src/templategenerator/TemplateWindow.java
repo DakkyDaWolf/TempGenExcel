@@ -324,6 +324,15 @@ public class TemplateWindow extends javax.swing.JFrame {
         });
     }
     
+    private final String anode1Code = "HYPERLINK(\"Z:\\Tom Evans\\Database\\\"&C";
+    private final String anode2Code = "HYPERLINK(\"Z:\\Tom Evans\\Database\\\"&L";
+    private final String anode3Code = "HYPERLINK(\"Z:\\Tom Evans\\Database\\\"&U";
+    private final String anode4Code = "HYPERLINK(\"Z:\\Tom Evans\\Database\\\"&AD";
+    private final String anode5Code = "HYPERLINK(\"Z:\\Tom Evans\\Database\\\"&AM";
+    private final String cathodeCode = "HYPERLINK(\"Z:\\Tom Evans\\Database\\\"&AV";
+    private final String glassingCode = "HYPERLINK(\"Z:\\Tom Evans\\Database\\\"&CA";
+    private final String codeSuffix = "&\".xlsx\")";
+    
     private File folder;
     private File[] fileList;
     private String[] files;

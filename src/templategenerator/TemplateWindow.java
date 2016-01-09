@@ -95,17 +95,17 @@ public class TemplateWindow extends javax.swing.JFrame {
             cell.setCellValue(i + 1); //comment
             cell = row.createCell(3);
             cell.setCellFormula(anode1Code + (i + 1) + codeSuffix);
-            cell = row.createCell(12);
+            cell = row.createCell(13);
             cell.setCellFormula(anode2Code + (i + 1) + codeSuffix);
-            cell = row.createCell(21);
+            cell = row.createCell(23);
             cell.setCellFormula(anode3Code + (i + 1) + codeSuffix);
-            cell = row.createCell(30);
+            cell = row.createCell(33);
             cell.setCellFormula(anode4Code + (i + 1) + codeSuffix);
-            cell = row.createCell(39);
+            cell = row.createCell(43);
             cell.setCellFormula(anode5Code + (i + 1) + codeSuffix);
-            cell = row.createCell(48);
+            cell = row.createCell(53);
             cell.setCellFormula(cathodeCode + (i + 1) + codeSuffix);
-            cell = row.createCell(79);
+            cell = row.createCell(64);
             cell.setCellFormula(glassingCode + (i + 1) + codeSuffix);
         }
     }
